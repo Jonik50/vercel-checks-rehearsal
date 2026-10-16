@@ -1,6 +1,6 @@
 {
-  "scenario": "S1",
-  "main_minutes": 1,
+  "scenario": "S2a",
+  "main_minutes": 8,
   "main_result": "pass",
   "aux_result": "absent"
 }
