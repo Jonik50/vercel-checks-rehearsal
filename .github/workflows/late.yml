@@ -1,0 +1,25 @@
+# S8 only (exact-SHA matching). A workflow_run job reports its check run on
+# the LATEST commit of the default branch, not on the commit whose CI
+# finished. It does nothing unless the repository
+# variable REHEARSAL_LATE is "on".
+name: Late check
+
+on:
+  workflow_run:
+    workflows: [ CI ]
+    types: [ completed ]
+
+permissions:
+  contents: read
+
+jobs:
+  gate_main_late:
+    if: vars.REHEARSAL_LATE == 'on'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Report success on whatever the default branch tip is
+        env:
+          FINISHED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          echo "CI finished for ${FINISHED_SHA}; this check run is attached to ${GITHUB_SHA}"

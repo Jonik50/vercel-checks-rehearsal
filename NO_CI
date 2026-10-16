@@ -1,0 +1,1 @@
+Changing only this file pushes a commit that starts no CI run (scenario S5: missing check).

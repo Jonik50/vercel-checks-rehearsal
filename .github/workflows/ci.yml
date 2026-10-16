@@ -1,0 +1,81 @@
+# Rehearsal CI. scenario.json in the pushed commit decides what each check
+# does:
+#   main_minutes  0..60   how long gate_main waits before finishing
+#   main_result   pass | fail | skip   (skip: gate_main is skipped)
+#   aux_result    pass | fail | absent (absent: gate_aux is skipped)
+# A commit that changes only the file NO_CI starts no run at all (the
+# "missing check" scenario). For the re-run scenario (S11) the repository
+# variable REHEARSAL_MAIN_RESULT, when set to pass or fail, overrides
+# main_result at the moment gate_main runs.
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore: [ NO_CI ]
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      main_minutes: ${{ steps.read.outputs.main_minutes }}
+      main_result: ${{ steps.read.outputs.main_result }}
+      aux_result: ${{ steps.read.outputs.aux_result }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Read scenario.json
+        id: read
+        run: |
+          set -euo pipefail
+          minutes="$(jq -r '.main_minutes' scenario.json)"
+          main="$(jq -r '.main_result' scenario.json)"
+          aux="$(jq -r '.aux_result' scenario.json)"
+          [[ "$minutes" =~ ^[0-9]+$ ]] && [ "$minutes" -le 60 ] || { echo "::error::main_minutes must be 0..60"; exit 1; }
+          case "$main" in pass|fail|skip) ;; *) echo "::error::bad main_result"; exit 1 ;; esac
+          case "$aux" in pass|fail|absent) ;; *) echo "::error::bad aux_result"; exit 1 ;; esac
+          {
+            echo "main_minutes=$minutes"
+            echo "main_result=$main"
+            echo "aux_result=$aux"
+          } >> "$GITHUB_OUTPUT"
+          echo "scenario $(jq -r '.scenario' scenario.json): main=$main after ${minutes} min, aux=$aux"
+
+  gate_main:
+    needs: plan
+    if: needs.plan.outputs.main_result != 'skip'
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - name: Wait, then pass or fail
+        env:
+          MINUTES: ${{ needs.plan.outputs.main_minutes }}
+          RESULT: ${{ needs.plan.outputs.main_result }}
+          OVERRIDE: ${{ vars.REHEARSAL_MAIN_RESULT }}
+        run: |
+          set -euo pipefail
+          sleep $(( MINUTES * 60 ))
+          case "$OVERRIDE" in pass|fail) RESULT="$OVERRIDE"; echo "override from REHEARSAL_MAIN_RESULT: $RESULT" ;; esac
+          echo "gate_main result: $RESULT"
+          [ "$RESULT" = "pass" ]
+
+  gate_aux:
+    needs: plan
+    if: needs.plan.outputs.aux_result != 'absent'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Pass or fail
+        env:
+          RESULT: ${{ needs.plan.outputs.aux_result }}
+        run: |
+          set -euo pipefail
+          echo "gate_aux result: $RESULT"
+          [ "$RESULT" = "pass" ]

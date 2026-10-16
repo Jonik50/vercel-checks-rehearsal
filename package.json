@@ -1,0 +1,8 @@
+{
+  "name": "vercel-checks-rehearsal",
+  "private": true,
+  "description": "Isolated rehearsal of Vercel Deployment Checks with GitHub Actions. No application code, no data, no secrets.",
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}
