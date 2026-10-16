@@ -1,6 +1,6 @@
 {
-  "scenario": "S2b",
-  "main_minutes": 10,
-  "main_result": "pass",
+  "scenario": "S3",
+  "main_minutes": 1,
+  "main_result": "fail",
   "aux_result": "absent"
 }
