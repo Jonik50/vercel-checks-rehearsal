@@ -1,8 +1,7 @@
-# S8 (exact-SHA matching). A workflow_run job reports its check run on the
-# LATEST commit of the default branch, not on the commit whose CI finished.
-# For S8 this job is named gate_main, the same name as the required Vercel
-# check, always runs, and finishes 90 s after the triggering CI so its effect
-# can be told apart from W's own check. Restored by the S8 cleanup commit.
+# S8 only (exact-SHA matching). A workflow_run job reports its check run on
+# the LATEST commit of the default branch, not on the commit whose CI
+# finished. It does nothing unless the repository
+# variable REHEARSAL_LATE is "on".
 name: Late check
 
 on:
@@ -15,7 +14,7 @@ permissions:
 
 jobs:
   gate_main_late:
-    name: gate_main
+    if: vars.REHEARSAL_LATE == 'on'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -24,4 +23,3 @@ jobs:
           FINISHED_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           echo "CI finished for ${FINISHED_SHA}; this check run is attached to ${GITHUB_SHA}"
-          sleep 90
