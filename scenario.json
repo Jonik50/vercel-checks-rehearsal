@@ -1,7 +1,7 @@
 {
-  "scenario": "S12-0-discovery",
+  "scenario": "S12e-run",
   "main_minutes": 0,
   "main_result": "pass",
   "aux_result": "absent",
-  "release": { "mode": "success", "delay": 0, "delay2": 0 }
+  "release": { "mode": "none", "delay": 0, "delay2": 0 }
 }
