@@ -1,6 +1,6 @@
 {
-  "scenario": "B0-P1",
+  "scenario": "B0-P2",
   "main_minutes": 0,
-  "main_result": "pass",
+  "main_result": "fail",
   "aux_result": "absent"
 }
