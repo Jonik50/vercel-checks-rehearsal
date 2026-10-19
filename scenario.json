@@ -1,6 +1,7 @@
 {
-  "scenario": "S8-Z-cleanup",
+  "scenario": "S12-0-discovery",
   "main_minutes": 0,
   "main_result": "pass",
-  "aux_result": "absent"
+  "aux_result": "absent",
+  "release": { "mode": "success", "delay": 0, "delay2": 0 }
 }
