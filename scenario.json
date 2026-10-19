@@ -1,7 +1,6 @@
 {
-  "scenario": "S12e-run",
+  "scenario": "S8-Z-cleanup",
   "main_minutes": 0,
   "main_result": "pass",
-  "aux_result": "absent",
-  "release": { "mode": "none", "delay": 0, "delay2": 0 }
+  "aux_result": "absent"
 }
